@@ -28,7 +28,7 @@ class MatchController:
                 if DEBUG: print(move)
 
             else:
-                move = self.detect_move(player_1, game_board)
+                move = self.detect_move(player_2, game_board)
                 # move = player_2.get_move(game_board.board)
                 player_id = -1
                 if DEBUG: print(move)

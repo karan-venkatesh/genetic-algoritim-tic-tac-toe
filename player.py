@@ -5,7 +5,7 @@ import math
 DEBUG= False
 
 class Player:
-    def __init__(self, parent_logic = None, mutation_rate = 10):
+    def __init__(self, parent_logic = None, mutation_rate = 20):
         if parent_logic:
             self.logic = parent_logic
         else:
@@ -27,6 +27,15 @@ class Player:
         for i in range(8):
             score += board[i//3][i%3] * self.player_id * logic_row[i] + logic_row[i]
         return score
+
+    def map_number(self,value):
+        if value in (0,2,6,8):
+            return 0
+        if value in (1,3,5,7):
+            return 1
+        else:
+            return 2 
+
 
     def get_move(self, board):
         best_move = -math.inf
