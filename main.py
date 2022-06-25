@@ -1,10 +1,11 @@
 from cgitb import reset
 from game_board import GameBoard
-from player import Player
+from player_genetic import PlayerGenetic
+from player_base import PlayerBase
 from match_controller import MatchController
 import random
 
-DEBUG = False
+DEBUG = True
 
 PLAYER_PER_GEN = 100
 
@@ -22,13 +23,13 @@ MATCH_RESULT = {
 
 
 
-def random_opponents():
+def play_random_opponents():
     match_controller = MatchController()
-    player_list = [Player() for _ in range(PLAYER_PER_GEN)]
+    player_list = [PlayerGenetic() for _ in range(PLAYER_PER_GEN)]
     selected_players = None
     
     for _ in range(NUMBER_OF_GEN):
-        if selected_players: player_list = [Player(selected_players[index % PLAYERS_TO_SELECT].logic) for index in range(PLAYER_PER_GEN)]
+        if selected_players: player_list = [PlayerGenetic(selected_players[index % PLAYERS_TO_SELECT].logic) for index in range(PLAYER_PER_GEN)]
 
         player_score = {i:0 for i in range(PLAYER_PER_GEN)}
         
@@ -46,7 +47,47 @@ def random_opponents():
                 player_score[player_1_id] += result
                 player_score[player_2_id] -= result
 
-        selected_players = [player_list[top_player_id] for top_player_id, _ in sorted(player_score.items(), key=lambda item: item[1])][-PLAYERS_TO_SELECT:]
+                result = match_controller.play_match(player_list[player_2_id],player_list[player_1_id])
+                if DEBUG: print('Player ',player_2_id,' vs Player ',player_1_id,' : ',MATCH_RESULT[result])
+                player_score[player_2_id] += result
+                player_score[player_1_id] -= result
+
+        sorted_player_score = sorted(player_score.items(), key=lambda item: item[1])
+        if DEBUG: print(sorted_player_score)
+        selected_players = [player_list[top_player_id] for top_player_id, _ in sorted_player_score][-PLAYERS_TO_SELECT:]
+
+
+    best_player = selected_players[-1]
+    return best_player
+
+def play_random_bots():
+    match_controller = MatchController()
+    player_list = [PlayerGenetic() for _ in range(PLAYER_PER_GEN)]
+    selected_players = None
+    
+    for _ in range(NUMBER_OF_GEN):
+        if selected_players: player_list = [PlayerGenetic(selected_players[index % PLAYERS_TO_SELECT].logic) for index in range(PLAYER_PER_GEN)]
+
+        player_score = {i:0 for i in range(PLAYER_PER_GEN)}
+        
+        for _ in range(MATCHES_PER_GEN):
+            player_index_list = [i for i in range(PLAYER_PER_GEN)]
+            while len(player_index_list)>=2:
+                player_1_id = player_index_list[random.randint(0,len(player_index_list)-1)]
+                player_index_list.remove(player_1_id)
+                
+
+                result = match_controller.play_match(player_list[player_1_id], PlayerBase())
+                if DEBUG: print('Player ',player_1_id,' vs Bot : ',MATCH_RESULT[result])
+                player_score[player_1_id] += result
+
+                result = match_controller.play_match(PlayerBase(), player_list[player_1_id])
+                if DEBUG: print('Bot vs Player ', player_1_id ,' : ',MATCH_RESULT[result])
+                player_score[player_1_id] -= result
+
+        sorted_player_score = sorted(player_score.items(), key=lambda item: item[1])
+        if DEBUG: print(sorted_player_score)
+        selected_players = [player_list[top_player_id] for top_player_id, _ in sorted_player_score][-PLAYERS_TO_SELECT:]
 
 
     best_player = selected_players[-1]
@@ -54,11 +95,11 @@ def random_opponents():
 
 def play_all_opponents():
     match_controller = MatchController()
-    player_list = [Player() for _ in range(PLAYER_PER_GEN)]
+    player_list = [PlayerGenetic() for _ in range(PLAYER_PER_GEN)]
     selected_players = None
     
     for _ in range(NUMBER_OF_GEN):
-        if selected_players: player_list = [Player(selected_players[index % PLAYERS_TO_SELECT].logic) for index in range(PLAYER_PER_GEN)]
+        if selected_players: player_list = [PlayerGenetic(selected_players[index % PLAYERS_TO_SELECT].logic) for index in range(PLAYER_PER_GEN)]
 
         player_score = {i:0 for i in range(PLAYER_PER_GEN)}
         
@@ -76,7 +117,7 @@ def play_all_opponents():
                     player_score[p1] -= result
 
         sorted_player_score = sorted(player_score.items(), key=lambda item: item[1])
-        print(sorted_player_score)
+        if DEBUG: print(sorted_player_score)
         selected_players = [player_list[top_player_id] for top_player_id, _ in sorted_player_score][-PLAYERS_TO_SELECT:]
 
 
@@ -92,6 +133,6 @@ def play_against_manual(player):
     match_controller.manual_match(player,play_first = False)
 
 if __name__ == '__main__':
-    best_player = play_all_opponents()
+    best_player = play_random_opponents()
     play_against_manual(best_player)
 

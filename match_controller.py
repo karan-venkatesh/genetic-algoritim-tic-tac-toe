@@ -1,5 +1,5 @@
 from game_board import GameBoard
-from player import Player
+from player_genetic import PlayerGenetic
 import random
 
 DEBUG = False

@@ -1,11 +1,11 @@
-from distutils.debug import DEBUG
+from player_base import PlayerBase
 import random
 import math
 
 DEBUG= False
 
-class Player:
-    def __init__(self, parent_logic = None, mutation_rate = 20):
+class PlayerGenetic(PlayerBase):
+    def __init__(self, parent_logic = None, mutation_rate = 1):
         if parent_logic:
             self.logic = parent_logic
         else:
@@ -18,9 +18,6 @@ class Player:
 
     def mutate(self):
         self.logic[random.randint(0,8)][random.randint(0,8)] += random.randint(-1,1)
-
-    def set_player_id(self,player_id):
-        self.player_id = player_id
     
     def score_move(self, logic_row, board):
         score = 0
@@ -35,7 +32,6 @@ class Player:
             return 1
         else:
             return 2 
-
 
     def get_move(self, board):
         best_move = -math.inf
